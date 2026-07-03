@@ -1,0 +1,45 @@
+name: 工具自动检查
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  retention30:
+    name: 30 日留存工具检查
+    runs-on: windows-latest
+
+    steps:
+      - name: 拉取代码
+        uses: actions/checkout@v4
+
+      - name: 配置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: 30Day_Web_App/frontend/package-lock.json
+
+      - name: 配置 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: 安装前端依赖
+        working-directory: 30Day_Web_App/frontend
+        run: npm ci
+
+      - name: 前端类型、单测、构建和冒烟检查
+        working-directory: 30Day_Web_App/frontend
+        run: npm run check
+
+      - name: 后端 Python 单测
+        run: python -m unittest discover -s 30Day_Web_App/tests -p "test_*.py"
+
+      - name: 旧前端回归测试
+        run: node 30Day_Web_App/tests/frontend_previous_month.test.js
