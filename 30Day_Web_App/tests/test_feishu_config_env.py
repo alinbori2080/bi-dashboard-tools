@@ -94,6 +94,33 @@ class FeishuConfigEnvTest(unittest.TestCase):
         self.assertTrue(status["appTokenSet"])
         self.assertTrue(status["tableIdsSet"])
 
+    def test_load_config_ignores_legacy_summary_table_config(self):
+        with TemporaryDirectory() as temp_dir:
+            config_path = Path(temp_dir) / "feishu_sync_config.json"
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "app_id": "json-app-id",
+                        "app_secret": "json-secret",
+                        "app_token": "json-app-token",
+                        "table_names": {"daily": "每日结果", "summary": "汇总结果"},
+                        "table_ids": {"daily": "daily-table", "summary": "summary-table"},
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            with (
+                patch.object(feishu_sync, "CONFIG_PATH", config_path),
+                patch.dict("os.environ", {}, clear=True),
+            ):
+                config = feishu_sync.load_config()
+
+        self.assertEqual({"daily": "每日结果"}, config["table_names"])
+        self.assertEqual({"daily": "daily-table"}, config["table_ids"])
+        self.assertNotIn("summary", config["table_names"])
+        self.assertNotIn("summary", config["table_ids"])
+
 
 if __name__ == "__main__":
     unittest.main()

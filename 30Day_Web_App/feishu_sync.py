@@ -78,17 +78,31 @@ def apply_env_config(config: dict[str, Any]) -> dict[str, Any]:
     return config
 
 
+def normalize_table_config(config: dict[str, Any]) -> dict[str, Any]:
+    config = dict(config)
+    table_names = config.get("table_names") or {}
+    table_ids = config.get("table_ids") or {}
+    config["table_names"] = {
+        key: str(table_names.get(key) or value["table_name"])
+        for key, value in SHEETS.items()
+    }
+    config["table_ids"] = {
+        key: str(table_ids.get(key) or "")
+        for key in SHEETS
+        if table_ids.get(key)
+    }
+    return config
+
+
 def load_config() -> dict[str, Any]:
     try:
-        config = apply_env_config(load_config_file())
+        config = normalize_table_config(apply_env_config(load_config_file()))
     except Exception as exc:  # noqa: BLE001 - reported to caller.
         raise SyncError(f"飞书配置读取失败：{exc}") from exc
     missing = [name for name in ("app_id", "app_secret") if not config.get(name)]
     if missing:
         raise SyncError("飞书配置缺少：" + ", ".join(missing))
     config.setdefault("base_name", "名将杀30日留存")
-    config.setdefault("table_names", {key: value["table_name"] for key, value in SHEETS.items()})
-    config.setdefault("table_ids", {})
     return config
 
 
@@ -870,4 +884,3 @@ if __name__ == "__main__":
     except Exception as exc:
         print(f"运行失败：{exc}")
         raise SystemExit(1)
-
