@@ -41,5 +41,5 @@ jobs:
       - name: 后端 Python 单测
         run: python -m unittest discover -s 30Day_Web_App/tests -p "test_*.py"
 
-      - name: 旧前端回归测试
+      - name: 前端入口结构回归测试
         run: node 30Day_Web_App/tests/frontend_previous_month.test.js
