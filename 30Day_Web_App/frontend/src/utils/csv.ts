@@ -8,6 +8,20 @@ export function exportTimestamp(date = new Date()): string {
   return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}_${pad2(date.getHours())}点${pad2(date.getMinutes())}分`
 }
 
+export function safeFilePart(value: unknown): string {
+  return (
+    String(value || 'report')
+      .trim()
+      .replace(/[<>:"/\\|?*\x00-\x1F]/g, '_')
+      .replace(/\s+/g, ' ')
+      .slice(0, 80) || 'report'
+  )
+}
+
+export function exportFilename(reportTitle: string, extension: string, date = new Date()): string {
+  return `${safeFilePart(reportTitle)}_${exportTimestamp(date)}.${extension}`
+}
+
 export function csvCell(value: unknown): string {
   const text = String(value ?? '')
   return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text

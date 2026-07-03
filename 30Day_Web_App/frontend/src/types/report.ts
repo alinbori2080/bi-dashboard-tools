@@ -20,3 +20,16 @@ export interface RuntimePayload {
   errors?: Array<{ id?: string; title?: string; body?: string }>
   sync?: Record<string, unknown>
 }
+
+export type ReportSource = 'feishu' | 'local'
+
+export interface StatusPayload {
+  appDir?: string
+  dataDir?: string
+  outputDir?: string
+  sourceModes?: ReportSource[]
+  sources?: Array<Record<string, unknown>>
+  config?: Record<string, unknown>
+  lastRefresh?: string
+  lastSync?: Record<string, unknown>
+}
