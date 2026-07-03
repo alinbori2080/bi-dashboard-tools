@@ -48,12 +48,41 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def load_config() -> dict[str, Any]:
+def env_value(name: str) -> str:
+    return os.environ.get(name, "").strip()
+
+
+def load_config_file() -> dict[str, Any]:
     if not CONFIG_PATH.exists():
-        raise SyncError(f"未找到飞书配置：{CONFIG_PATH}。请从旧工具迁移配置，或按 README 填写后再同步。")
+        return {}
     with CONFIG_PATH.open("r", encoding="utf-8-sig") as file:
-        config = json.load(file)
-    config["app_secret"] = os.environ.get("FEISHU_APP_SECRET") or config.get("app_secret")
+        return json.load(file)
+
+
+def apply_env_config(config: dict[str, Any]) -> dict[str, Any]:
+    config = dict(config)
+    table_ids = dict(config.get("table_ids") or {})
+    env_map = {
+        "app_id": env_value("FEISHU_APP_ID"),
+        "app_secret": env_value("FEISHU_APP_SECRET"),
+        "app_token": env_value("FEISHU_APP_TOKEN"),
+        "app_url": env_value("FEISHU_APP_URL"),
+    }
+    for key, value in env_map.items():
+        if value:
+            config[key] = value
+    daily_table_id = env_value("FEISHU_DAILY_TABLE_ID")
+    if daily_table_id:
+        table_ids["daily"] = daily_table_id
+    config["table_ids"] = table_ids
+    return config
+
+
+def load_config() -> dict[str, Any]:
+    try:
+        config = apply_env_config(load_config_file())
+    except Exception as exc:  # noqa: BLE001 - reported to caller.
+        raise SyncError(f"飞书配置读取失败：{exc}") from exc
     missing = [name for name in ("app_id", "app_secret") if not config.get(name)]
     if missing:
         raise SyncError("飞书配置缺少：" + ", ".join(missing))
@@ -715,15 +744,11 @@ def config_status() -> dict[str, Any]:
         "feishuLinks": [],
         "message": "未找到飞书配置",
     }
-    if not CONFIG_PATH.exists():
-        return status
     try:
-        with CONFIG_PATH.open("r", encoding="utf-8-sig") as file:
-            config = json.load(file)
+        config = apply_env_config(load_config_file())
     except Exception as exc:  # noqa: BLE001 - reported to local UI.
         status["message"] = f"飞书配置读取失败：{exc}"
         return status
-    config["app_secret"] = os.environ.get("FEISHU_APP_SECRET") or config.get("app_secret")
     missing = [name for name in ("app_id", "app_secret") if not config.get(name)]
     table_ids = config.get("table_ids") or {}
     status.update(
@@ -845,6 +870,4 @@ if __name__ == "__main__":
     except Exception as exc:
         print(f"运行失败：{exc}")
         raise SystemExit(1)
-
-
 

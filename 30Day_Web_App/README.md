@@ -153,6 +153,18 @@
 - 某些日期或字段异常时，只跳过受影响字段，不影响其他正常日期和指标。
 - 同步结束后页面展示本次新增、更新、跳过的字段数量和跳过原因。
 
+### 飞书配置
+
+后端优先读取环境变量；未设置时再读取 `config/feishu_sync_config.json`。公开仓库不要提交真实配置文件。
+
+支持的环境变量：
+
+- `FEISHU_APP_ID`
+- `FEISHU_APP_SECRET`
+- `FEISHU_APP_TOKEN`
+- `FEISHU_DAILY_TABLE_ID`
+- `FEISHU_APP_URL`
+
 ## 页面功能
 
 - 数据来源切换：`飞书结果表`、`本地结果文件`。
