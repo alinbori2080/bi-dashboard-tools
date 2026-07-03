@@ -19,6 +19,7 @@ export interface RuntimePayload {
   reports?: Report[]
   errors?: Array<{ id?: string; title?: string; body?: string }>
   sync?: Record<string, unknown>
+  status?: StatusPayload
 }
 
 export type ReportSource = 'feishu' | 'local'
