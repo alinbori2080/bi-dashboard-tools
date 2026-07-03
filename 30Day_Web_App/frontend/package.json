@@ -8,7 +8,8 @@
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview --host 127.0.0.1",
     "test": "vitest run",
-    "check": "npm run typecheck && npm run test && npm run build",
+    "smoke": "node scripts/smoke-server.mjs",
+    "check": "npm run typecheck && npm run test && npm run build && npm run smoke",
     "typecheck": "vue-tsc --noEmit"
   },
   "dependencies": {
