@@ -1,152 +1,32 @@
 <!doctype html>
 <html lang="zh-CN">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>名将杀周报数据</title>
-    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
-    <div class="app-shell">
-      <aside class="sidebar">
-        <div class="brand">
-          <span class="brand-mark">G</span>
-          <span>名将杀周报数据</span>
+    <main class="workspace" style="min-height: 100vh; padding: 32px;">
+      <section class="report-panel" style="max-width: 760px; margin: 0 auto;">
+        <div class="section-heading">
+          <div>
+            <h1>名将杀周报数据</h1>
+            <p>前端构建产物不存在，当前展示的是静态回退提示页。</p>
+          </div>
         </div>
-        <nav class="nav" aria-label="报表导航">
-          <button class="nav-button active" data-report="conversion">
-            <span aria-hidden="true">↗</span>
-            新用户转化率
-          </button>
-          <button class="nav-button" data-report="private">
-            <span aria-hidden="true">◎</span>
-            活跃用户关注私域占比
-          </button>
-        </nav>
-        <div class="local-mode">
-          <span class="dot"></span>
-          本地服务
+        <section class="status-banner warning">
+          请先进入 <strong>GDATA_Web_App/frontend</strong> 执行 <strong>npm install</strong> 和 <strong>npm run build</strong>，再启动服务访问看板。
+        </section>
+        <div class="info-panel">
+          <h2>标准启动流程</h2>
+          <pre><code>cd GDATA_Web_App/frontend
+npm install
+npm run build
+cd ..
+python server.py 8765</code></pre>
         </div>
-      </aside>
-
-      <main class="workspace">
-        <header class="topbar">
-          <button id="menuButton" class="icon-button" type="button" aria-label="折叠菜单">☰</button>
-          <button id="sidePanelButton" class="icon-button" type="button" aria-label="隐藏右侧信息">◨</button>
-          <div class="status-line">
-            <span>源目录</span>
-            <strong id="dataDir">读取中</strong>
-          </div>
-          <div class="actions">
-            <button id="refreshButton" class="primary-button" type="button">刷新数据</button>
-            <button id="syncButton" class="secondary-button" type="button">确认同步飞书</button>
-            <button id="exportButton" class="secondary-button" type="button">导出当前报表</button>
-          </div>
-        </header>
-
-        <section class="filter-row" aria-label="筛选">
-          <div class="filter-group">
-            <span class="filter-label">数据源</span>
-            <div class="segmented" id="sourceModeTabs">
-              <button class="active" data-source-mode="feishu" type="button">飞书结果表</button>
-              <button data-source-mode="local" type="button">本地文件</button>
-            </div>
-          </div>
-          <div class="filter-group">
-            <span class="filter-label">时间范围</span>
-            <div class="segmented" id="rangeTabs">
-              <button class="active" data-range="all" type="button">全部</button>
-              <button data-range="7" type="button">近7天</button>
-              <button data-range="30" type="button">近30天</button>
-              <button data-range="custom" type="button">自定义</button>
-            </div>
-          </div>
-          <div class="date-range hidden" id="customRange">
-            <input id="startDateInput" type="date" aria-label="开始日期" />
-            <span>至</span>
-            <input id="endDateInput" type="date" aria-label="结束日期" />
-          </div>
-          <div class="filter-group">
-            <span class="filter-label">对比维度</span>
-            <div class="segmented" id="compareTabs">
-              <button class="active" data-dimension="日" type="button">日</button>
-              <button data-dimension="周" type="button">周</button>
-              <button data-dimension="月" type="button">月</button>
-            </div>
-          </div>
-          </section>
-
-          <section class="status-banner muted" id="noticeBand">正在读取本地状态</section>
-
-        <div class="layout-grid">
-          <section class="report-panel">
-            <div class="section-heading">
-              <div>
-                <h1 id="reportTitle">新用户转化率</h1>
-                <p id="reportFormula"></p>
-              </div>
-              <span id="lastRefresh" class="meta-text"></span>
-            </div>
-
-            <p class="meta-text kpi-period" id="kpiPeriod"></p>
-            <div class="kpi-grid" id="kpiGrid"></div>
-
-            <section class="chart-section">
-              <div class="section-heading compact">
-                <div>
-                  <h2>周期趋势</h2>
-                  <p id="chartSubtitle"></p>
-                </div>
-                <div class="legend">
-                  <span><i class="swatch blue"></i><b id="denominatorLegend">分母</b></span>
-                  <span><i class="swatch teal"></i><b id="numeratorLegend">分子</b></span>
-                  <span><i class="swatch orange"></i><b>比率</b></span>
-                </div>
-              </div>
-              <div id="chart" class="chart" role="img" aria-label="报表周期趋势"></div>
-            </section>
-
-            <section class="table-section">
-              <div class="section-heading compact">
-                <h2>明细数据</h2>
-                <span id="rowCount" class="meta-text">0 条</span>
-              </div>
-              <div class="table-wrap">
-                <table>
-                  <thead id="tableHead"></thead>
-                  <tbody id="tableBody"></tbody>
-                </table>
-              </div>
-            </section>
-          </section>
-
-          <aside class="side-panel">
-            <section class="info-panel">
-              <h2>运行信息</h2>
-              <dl id="runtimeInfo" class="key-value"></dl>
-            </section>
-            <section class="info-panel">
-              <h2>报表行数</h2>
-              <div id="reportStats" class="source-list"></div>
-            </section>
-            <section class="info-panel">
-              <h2>源数据文件</h2>
-              <p class="source-note">筛选渠道：①官方渠道-全部 ②CPS渠道-全部 ③其他渠道-PC</p>
-              <div id="sourceList" class="source-list"></div>
-            </section>
-            <section class="info-panel">
-              <h2>飞书同步</h2>
-              <dl id="syncInfo" class="key-value"></dl>
-            </section>
-            <section class="info-panel">
-              <h2>错误与提示</h2>
-              <div id="messageList" class="message-list"></div>
-            </section>
-          </aside>
-        </div>
-      </main>
-    </div>
-
-    <script src="./app.js"></script>
+      </section>
+    </main>
   </body>
 </html>

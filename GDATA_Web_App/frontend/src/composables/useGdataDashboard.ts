@@ -1,3 +1,11 @@
+// @ts-nocheck
+// GDATA 看板业务逻辑：从旧静态脚本迁移到前端工程源码。
+
+let mounted = false;
+
+export function mountGdataDashboard() {
+  if (mounted) return;
+  mounted = true;
 const state = {
   status: null,
   runtime: null,
@@ -937,4 +945,6 @@ els.sidePanelButton.addEventListener('click', () => {
   renderSidePanelState();
 });
 
-loadInitial();
+
+  loadInitial();
+}

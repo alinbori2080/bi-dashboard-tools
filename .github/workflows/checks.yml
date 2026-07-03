@@ -74,3 +74,37 @@ jobs:
 
       - name: 前端入口结构回归测试
         run: node NewBie_Web_App/tests/frontend_daily_dimension.test.js
+
+  gdata:
+    name: GDATA 周报工具检查
+    runs-on: windows-latest
+
+    steps:
+      - name: 拉取代码
+        uses: actions/checkout@v4
+
+      - name: 配置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: GDATA_Web_App/frontend/package-lock.json
+
+      - name: 配置 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: 安装前端依赖
+        working-directory: GDATA_Web_App/frontend
+        run: npm ci
+
+      - name: 前端类型、单测、构建和冒烟检查
+        working-directory: GDATA_Web_App/frontend
+        run: npm run check
+
+      - name: 后端 Python 单测
+        run: python -m unittest discover -s GDATA_Web_App/tests -p "test_*.py"
+
+      - name: 前端入口结构回归测试
+        run: node GDATA_Web_App/tests/frontend_previous_month.test.js
