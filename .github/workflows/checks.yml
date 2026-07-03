@@ -43,3 +43,34 @@ jobs:
 
       - name: 前端入口结构回归测试
         run: node 30Day_Web_App/tests/frontend_previous_month.test.js
+
+  newbie:
+    name: 新锐攻略工具检查
+    runs-on: windows-latest
+
+    steps:
+      - name: 拉取代码
+        uses: actions/checkout@v4
+
+      - name: 配置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: NewBie_Web_App/frontend/package-lock.json
+
+      - name: 配置 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: 安装前端依赖
+        working-directory: NewBie_Web_App/frontend
+        run: npm ci
+
+      - name: 前端类型、单测、构建和冒烟检查
+        working-directory: NewBie_Web_App/frontend
+        run: npm run check
+
+      - name: 前端维度回归测试
+        run: node NewBie_Web_App/tests/frontend_daily_dimension.test.js

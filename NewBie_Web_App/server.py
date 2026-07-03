@@ -16,6 +16,7 @@ import newbie_core
 
 APP_DIR = Path(__file__).resolve().parent
 STATIC_DIR = APP_DIR / "static"
+FRONTEND_DIST_DIR = APP_DIR / "frontend" / "dist"
 RUNTIME_STATE_PATH = APP_DIR / "runtime_state.json"
 
 class SingleInstanceHTTPServer(ThreadingHTTPServer):
@@ -245,7 +246,8 @@ def csv_response(report: dict[str, object]) -> bytes:
 
 class AppHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args: object, **kwargs: object) -> None:
-        super().__init__(*args, directory=str(STATIC_DIR), **kwargs)
+        static_dir = FRONTEND_DIST_DIR if (FRONTEND_DIST_DIR / "index.html").exists() else STATIC_DIR
+        super().__init__(*args, directory=str(static_dir), **kwargs)
 
     def do_GET(self) -> None:  # noqa: N802 - stdlib API.
         parsed = urlparse(self.path)
