@@ -10,6 +10,24 @@
 - 启动方式：双击 `30Day_Web_App/start.cmd`
 - 如果服务已经启动，再次双击 `start.cmd` 会直接打开网页，不会重复启动服务。
 
+## 前端工程化
+
+`frontend/` 是 30 日留存看板的新前端工程目录，采用 `Vue3 + TypeScript + Vite`。
+
+开发和构建命令：
+
+```text
+cd 30Day_Web_App/frontend
+npm install
+npm run dev
+npm run build
+```
+
+- `npm run dev`：启动前端开发服务，接口请求代理到 `http://127.0.0.1:8767`。
+- `npm run build`：生成 `frontend/dist`，用于服务器部署。
+- 后端启动时会优先读取 `frontend/dist/index.html`；如果没有构建产物，则自动回退到旧版 `static/`。
+- 飞书密钥和表格配置只由后端读取，不写入前端工程。
+
 ## 报表
 
 刷新后会生成本地文件：
@@ -182,6 +200,8 @@
 - `data/`：本地源数据目录。
 - `output/`：本地刷新后生成 `30日留存结果.xlsx`。
 - `config/`：飞书配置和同步状态。
+- `frontend/`：Vue3 + TypeScript + Vite 前端工程目录。
+- `frontend/dist/`：前端构建产物，部署时交给服务器使用。
 - `static/`：网页前端文件。
 - `runtime_state.json`：最近一次页面运行状态。
 - `start.cmd`：本地启动脚本。
