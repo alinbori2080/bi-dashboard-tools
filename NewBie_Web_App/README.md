@@ -28,7 +28,7 @@ npm run build
 - `npm run dev`：启动前端开发服务，接口请求代理到 `http://127.0.0.1:8766`。
 - `npm run build`：生成 `frontend/dist`，用于服务器部署。
 - `npm run check`：执行类型检查、前端单测、前端构建和服务冒烟测试。
-- 后端启动时会优先读取 `frontend/dist/index.html`；如果没有构建产物，则自动回退到旧版 `static/`。
+- 后端启动时会优先读取 `frontend/dist/index.html`；如果没有构建产物，则自动回退到 `static/` 的构建提示页。
 - 飞书密钥和表格配置只由后端读取，不写入前端工程。
 
 ## 日常使用
@@ -142,7 +142,7 @@ npm run build
 - `config/`：飞书配置和同步状态。
 - `frontend/`：Vue3 + TypeScript + Vite 前端工程目录。
 - `frontend/dist/`：前端构建产物，部署时交给服务器使用。
-- `static/`：网页前端文件。
+- `static/`：静态样式和无构建产物时的提示页，不再承载业务前端逻辑。
 - `runtime_state.json`：最近一次页面运行状态。
 - `start.cmd`：本地启动脚本。
 

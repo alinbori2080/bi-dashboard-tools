@@ -72,5 +72,5 @@ jobs:
         working-directory: NewBie_Web_App/frontend
         run: npm run check
 
-      - name: 前端维度回归测试
+      - name: 前端入口结构回归测试
         run: node NewBie_Web_App/tests/frontend_daily_dimension.test.js

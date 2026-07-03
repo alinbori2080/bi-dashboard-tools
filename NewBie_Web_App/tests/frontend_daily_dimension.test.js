@@ -2,83 +2,34 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const test = require('node:test');
-const vm = require('node:vm');
 
-test('页面提供日周月对比维度入口', () => {
+test('静态回退页不再加载旧版 app.js', () => {
   const html = fs.readFileSync(path.resolve(__dirname, '../static/index.html'), 'utf8');
 
-  assert.match(html, /data-dimension="日"/);
-  assert.match(html, /data-dimension="周"/);
-  assert.match(html, /data-dimension="月"/);
+  assert.match(html, /静态回退提示页/);
+  assert.match(html, /npm run build/);
+  assert.doesNotMatch(html, /<script[^>]+app\.js/);
 });
 
-function createElement() {
-  return {
-    classList: { toggle() {}, add() {}, remove() {} },
-    dataset: {},
-    disabled: false,
-    innerHTML: '',
-    textContent: '',
-    value: '',
-    addEventListener() {},
-    appendChild() {},
-    remove() {},
-    closest() { return null; },
-    querySelectorAll() { return []; },
-    setAttribute() {},
-  };
-}
+test('新版 Vue 页面保留核心筛选入口', () => {
+  const appVue = fs.readFileSync(path.resolve(__dirname, '../frontend/src/App.vue'), 'utf8');
 
-function loadAppContext() {
-  const appPath = path.resolve(__dirname, '../static/app.js');
-  const source = fs.readFileSync(appPath, 'utf8').replace(/\nbindEvents\(\);\s*load\(\)\.catch[\s\S]*$/, '');
-  const elements = {};
-  const context = {
-    Blob: function Blob() {},
-    URL: { createObjectURL() { return ''; }, revokeObjectURL() {} },
-    document: {
-      body: { classList: { toggle() {} }, appendChild() {} },
-      createElement,
-      getElementById(id) {
-        elements[id] ||= createElement();
-        return elements[id];
-      },
-      querySelector() { return createElement(); },
-      querySelectorAll() { return []; },
-    },
-    fetch: async () => ({ ok: true, json: async () => ({}) }),
-    localStorage: { getItem() { return null; }, setItem() {} },
-    window: { alert() {}, confirm() { return false; } },
-  };
-  vm.createContext(context);
-  vm.runInContext(source, context);
-  return context;
-}
+  assert.match(appVue, /飞书结果表/);
+  assert.match(appVue, /本地文件/);
+  assert.match(appVue, /推送用户留存付费/);
+  assert.match(appVue, /导出 CSV/);
+  assert.match(appVue, /data-dimension="日"/);
+  assert.match(appVue, /data-dimension="周"/);
+  assert.match(appVue, /data-dimension="月"/);
+});
 
-test('日维度按批次日期逐日展示趋势周期', () => {
-  const context = loadAppContext();
-  vm.runInContext(`
-    const batches = [
-      {
-        batch: '6月01日',
-        date: '2026-06-01',
-        experiment: { '用户量': 100, 'LTV7': '2.00', '次日留存率': '20.00%', '大盘次日留存率': '18.00%' },
-        control: { '用户量': 100, 'LTV7': '1.00', '次日留存率': '10.00%' }
-      },
-      {
-        batch: '6月02日',
-        date: '2026-06-02',
-        experiment: { '用户量': 100, 'LTV7': '4.00', '次日留存率': '40.00%', '大盘次日留存率': '30.00%' },
-        control: { '用户量': 100, 'LTV7': '3.00', '次日留存率': '30.00%' }
-      }
-    ];
-    const periods = periodRows(batches, '日');
-    globalThis.labels = JSON.stringify(periods.map((item) => item.batch));
-    globalThis.keys = JSON.stringify(periods.map((item) => item.key));
-    globalThis.ltv = JSON.stringify(periods.map((item) => item.experiment.LTV7));
-  `, context);
+test('新版前端控制器保留关键业务动作和日维度逻辑', () => {
+  const controller = fs.readFileSync(path.resolve(__dirname, '../frontend/src/composables/useNewbieDashboard.ts'), 'utf8');
 
-  assert.equal(context.labels, '["6.1","6.2"]');
-  assert.equal(context.keys, '["2026-06-01","2026-06-02"]');
-  assert.equal(context.ltv, '["2.00","4.00"]');
+  assert.match(controller, /async function refreshData/);
+  assert.match(controller, /async function syncFeishu/);
+  assert.match(controller, /function exportCurrentReport/);
+  assert.match(controller, /function periodRows/);
+  assert.match(controller, /dimension === "日"/);
+  assert.match(controller, /csvText\(displayFields, displayRows\(\)\)/);
 });

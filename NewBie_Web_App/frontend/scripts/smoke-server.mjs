@@ -29,6 +29,7 @@ try {
   await waitForServer()
   const html = await fetchText(`${baseUrl}/`)
   assertIncludes(html, '/assets/index-', '首页没有返回 Vite 构建入口')
+  assertExcludes(html, '/app.js', '首页不应再加载旧版 app.js')
 
   const status = await fetchJson(`${baseUrl}/api/status`)
   if (!status || typeof status !== 'object' || !('dataDir' in status)) {
@@ -70,4 +71,8 @@ async function fetchJson(url) {
 
 function assertIncludes(text, pattern, message) {
   if (!text.includes(pattern)) throw new Error(message)
+}
+
+function assertExcludes(text, pattern, message) {
+  if (text.includes(pattern)) throw new Error(message)
 }
